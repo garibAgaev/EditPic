@@ -6,56 +6,52 @@ struct ContentView1: View {
     @Binding var isSelected: Bool
     @Binding var start: Rotate
     @Binding var labelConfiguration: MYLabelConfiguration
-
+    @Binding var configure: ConfigureMode?
     
-    @State private var selectedLabelOption: LabelEditOption? = nil
-    @State private var configure: ConfigureMode? = nil
+    
+    @State private var selectedLabelOption: LabelEditOption?
     @State private var providerText = ""
     @State private var length = 0.0
     
     @ObservedObject var orientationObserver = MYOrientationManager.shared
-
+    
     
     var body: some View {
         ZStack {
             MYOrientationStackView(true) {
-                ToolbarView(
-                    configure: $configure,
-                )
-                .frame(
-                    maxWidth: orientationObserver.orientation == .horizontal ? 44 : nil,
-                    maxHeight: orientationObserver.orientation == .vertical ? 44 : nil
-                )
-                .background(
-                    layoutAnchor
-                )
-                .padding()
+                ToolbarView(configure: $configure)
+                    .background(layoutAnchor)
+                    .padding()
                 Spacer()
             }
             .ignoresSafeArea(.keyboard)
-            .onChange(of: selectedLabelOption) {
-                if $0 != nil && !isSelected {
-                    isSelected = true
-                }
-                if $0 == nil && isSelected {
-                    isSelected = false
-                }
-            }
-            .onChange(of: isSelected) {
-                if $0 && selectedLabelOption == nil {
-                    selectedLabelOption = .text
-                }
-                if !$0 {
-                    selectedLabelOption = nil
-                }
-            }
             MYOrientationStackView(true) {
-                layoutDependent
+                switch orientationObserver.orientation {
+                case .horizontal:
+                    Color.clear.frame(width: length)
+                case .vertical:
+                    Spacer()
+                }
                 imageConfigurationView
-                    .frame(maxWidth: .infinity)
+//                    .frame(maxWidth: .infinity)
             }
         }
-        .coordinateSpace(name: "coordinateSpace")
+        .onChange(of: selectedLabelOption) {
+            if $0 != nil && !isSelected {
+                isSelected = true
+            }
+            if $0 == nil && isSelected {
+                isSelected = false
+            }
+        }
+        .onChange(of: isSelected) {
+            if $0 && selectedLabelOption == nil {
+                selectedLabelOption = .text
+            }
+            if !$0 {
+                selectedLabelOption = nil
+            }
+        }
     }
     
     var layoutDependent: some View {
@@ -65,40 +61,43 @@ struct ContentView1: View {
                 height: orientationObserver.orientation == .vertical ? length : nil
             )
     }
-
+    
     @ViewBuilder
     var imageConfigurationView: some View {
         switch configure {
         case .none:
-            ZStack {}
+            Group {}
         case .text:
             VStack {
                 Spacer()
                 textLabelConfiguratorView
             }
         case .pensil:
-            ZStack {}
+            Group {}
         case .rotate:
             MYOrientationStackView(true) {
                 Spacer()
-                MYOrientationStackView(false) {
-                    Spacer()
-                    MYIconToggleButtonView(iconName: "rotate.left", isActive: .constant(false)) {
-                        start.left.toggle()
-                    }
-                    MYIconToggleButtonView(iconName: "rotate.right", isActive: .constant(false)) {
-                        start.right.toggle()
-                    }
-                    Spacer()
-                }
-                .frame(
-                    maxWidth: orientationObserver.orientation == .horizontal ? 44 : nil,
-                    maxHeight: orientationObserver.orientation == .vertical ? 44 : nil
-                )
+                rotateLabelConfiguratorView
             }
         }
     }
-
+    
+    @ViewBuilder
+    var rotateLabelConfiguratorView: some View {
+        MYOrientationStackView(false) {
+            Spacer()
+            MYIconToggleButtonView(iconName: "rotate.left", isActive: .constant(false)) {
+                start.left.toggle()
+            }
+            .frame(width: length)
+            MYIconToggleButtonView(iconName: "rotate.right", isActive: .constant(false)) {
+                start.right.toggle()
+            }
+            .frame(width: length)
+            Spacer()
+        }
+    }
+    
     @ViewBuilder
     var textLabelConfiguratorView: some View {
         switch selectedLabelOption {
@@ -112,17 +111,16 @@ struct ContentView1: View {
                         .frame(maxHeight: 44)
                         .padding()
                     if selectedLabelOption == .textColor {
-                        ColorPicker(
-                            "",
-                            selection:
-                                Binding(
-                                    get: { Color(uiColor: labelConfiguration.textColor) },
-                                    set: {
-                                        labelConfiguration.textColor = UIColor($0)
-                                    }
-                                )
+                        ColorPicker("", selection:
+                                        Binding(
+                                            get: { Color(labelConfiguration.textColor) },
+                                            set: {
+                                                labelConfiguration.textColor = UIColor($0)
+                                            }
+                                        )
                         )
-                            .labelsHidden()
+                        .labelsHidden()
+                        .padding()
                     }
                 }
                 if let labelConfigurationOption1 = selectedLabelOption {
@@ -140,7 +138,6 @@ struct ContentView1: View {
                 }
             }
             .background(Color(.secondarySystemBackground).opacity(0.8))
-            .cornerRadius(8)
         }
     }
     
@@ -150,12 +147,12 @@ struct ContentView1: View {
                 .onReceive(orientationObserver.$orientation) {
                     switch $0 {
                     case .horizontal:
-                        length = geometry.frame(in: .named("coordinateSpace")).maxX
+                        length = geometry.size.width
                     case .vertical:
-                        length = geometry.frame(in: .named("coordinateSpace")).maxY
+                        length = geometry.size.height
                     }
                 }
         }
     }
-
+    
 }

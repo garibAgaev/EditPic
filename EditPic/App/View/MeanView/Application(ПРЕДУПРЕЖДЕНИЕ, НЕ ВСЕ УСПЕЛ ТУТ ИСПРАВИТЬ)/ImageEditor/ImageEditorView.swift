@@ -52,7 +52,8 @@ struct ImageEditorView: View {
                         ContentView1(
                             isSelected: isSelectedBinding,
                             start: $start,
-                            labelConfiguration: $labelConfiguration
+                            labelConfiguration: $labelConfiguration,
+                            configure: $configure
                         )
                     }
                 }
