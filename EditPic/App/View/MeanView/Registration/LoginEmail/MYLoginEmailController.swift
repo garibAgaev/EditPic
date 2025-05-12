@@ -26,7 +26,7 @@ struct MYLoginEmailController: View {
         } content: {
             MYForgotPasswordController(email: $forgotEmail)
         }
-        .myAlertPresenter(error: viewModel.alertError)
+        .myAlertPresenter(flag: viewModel.showAlert)
         .navigationTitle("Вход")
     }
     

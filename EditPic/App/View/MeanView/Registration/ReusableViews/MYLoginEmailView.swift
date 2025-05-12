@@ -8,7 +8,7 @@ struct MYLoginEmailView: View {
 
     @AppStorage("isLoggedIn") var isLoggedIn = false
     
-    @State private var alertError: MYAlertError?
+    @State private var showAlert = false
 
     var body: some View {
         VStack {
@@ -22,12 +22,13 @@ struct MYLoginEmailView: View {
                         Binding(
                             get: { password },
                             set: { newValue in
-                                if alertError == nil {
-                                    alertError = MYAlertError(
+                                if !showAlert {
+                                    MYAlertObserver.shared.alertError = MYAlertError(
                                         title: "Предупреждение",
                                         message: "Пароль должен содержать минимум \(MYPasswordManager.shared.defaultPasswordCount) символов.",
                                         primaryButton: MYAlertButton(title: "OK", role: .cancel)
                                     )
+                                    showAlert = true
                                 }
                                 withAnimation {
                                     password = newValue
@@ -35,12 +36,13 @@ struct MYLoginEmailView: View {
                             }
                         )
                 )
-                .myAlertPresenter(error: alertError)
+//                .myAlertPresenter(flag: showAlert)
                 .myDismissKeyboardOnTap()
                 .padding()
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(MYDefaultSetting.cornerRadius)
             }
+            .myAlertPresenter(flag: showAlert)
             .myDismissKeyboardOnTap()
             
             

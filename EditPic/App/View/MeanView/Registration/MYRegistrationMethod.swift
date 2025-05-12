@@ -72,7 +72,7 @@ struct MYRegistrationMethod: View {
                         .ignoresSafeArea()
                 }
             }
-            .myAlertPresenter(error: viewModel.alertError)
+            .myAlertPresenter(flag: viewModel.showAlert)
             .navigationTitle(Text(isUserLoggedIn ? "Вход" : "Регистрация"))
         }
     }

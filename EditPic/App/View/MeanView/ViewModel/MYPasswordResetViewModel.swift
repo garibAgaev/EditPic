@@ -5,7 +5,7 @@ import SwiftUI
 class MYAuthenticationViewModel: ObservableObject {
     @AppStorage("isLoggedIn") var isLoggedIn = false
 
-    @Published var alertError: MYAlertError?
+    @Published var showAlert = false
     
     func tryChangePassword(email: String) {
         Task {
@@ -31,25 +31,21 @@ class MYAuthenticationViewModel: ObservableObject {
         case .success(let user):
             handleGoogleSignIn(googleUser: user)
         case .noUser:
-            alertError = MYAlertError(
+            showAlert(
                 title: "Пользователь не найден",
-                message: "Пользователь с таким email не найден в системе. Попробуйте использовать другой email или зарегистрируйтесь.",
-                primaryButton: MYAlertButton(title: "ОК", role: .cancel)
+                message: "Пользователь с таким email не найден в системе. Попробуйте использовать другой email или зарегистрируйтесь."
             )
-
         case .failure(let error):
             switch error {
             case .missingRootViewController:
-                alertError = MYAlertError(
+                showAlert(
                     title: "Ошибка",
-                    message: "Не удалось выполнить вход. Попробуйте позже.",
-                    primaryButton: MYAlertButton(title: "ОК", role: .cancel)
+                    message: "Не удалось выполнить вход. Попробуйте позже."
                 )
             case .signInFailed(underlying: _):
-                alertError = MYAlertError(
+                showAlert(
                     title: "Ошибка авторизации",
-                    message: "Не удалось авторизоваться через Google. Попробуйте еще раз.",
-                    primaryButton: MYAlertButton(title: "ОК", role: .cancel)
+                    message: "Не удалось авторизоваться через Google. Попробуйте еще раз."
                 )
             }
         }
@@ -228,7 +224,8 @@ class MYAuthenticationViewModel: ObservableObject {
     
     @MainActor
     private func showAlert(title: String, message: String) {
-        alertError = MYAlertError(
+        showAlert = true
+        MYAlertObserver.shared.alertError = MYAlertError(
             title: title,
             message: message,
             primaryButton: MYAlertButton(title: "ОК", role: .cancel)

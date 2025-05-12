@@ -11,19 +11,32 @@ import SwiftUI
 
 // MARK: - Alert Support
 
+/// Наблюдатель за появлением ошибок.
+@MainActor
+class MYAlertObserver: ObservableObject {
+    fileprivate var showAlert = true
+    
+    @Published var alertError: MYAlertError?
+    
+    static let shared = MYAlertObserver()
+
+    private init() {}
+}
+
 /// PreferenceKey для передачи ошибок, вызывающих alert, вверх по иерархии View.
 private struct MYAlertPreferenceKey: PreferenceKey {
-    static var defaultValue: MYAlertError? = nil
+    static var defaultValue = false
 
-    static func reduce(value: inout MYAlertError?, nextValue: () -> MYAlertError?) {
-        value = nextValue()
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        let nextValue = nextValue()
+        value = value || nextValue
     }
 }
 
 extension View {
     /// Передает ошибку для отображения alert на Root уровне.
-    func myAlertPresenter(error: MYAlertError?) -> some View {
-        preference(key: MYAlertPreferenceKey.self, value: error)
+    func myAlertPresenter(flag: Bool) -> some View {
+        return preference(key: MYAlertPreferenceKey.self, value: flag)
     }
 }
 
@@ -55,7 +68,7 @@ extension View {
 
 /// Главное обёртывающее вью, обрабатывающее скрытие клавиатуры и показ alert.
 struct MYRootView<Content: View>: View {
-    @State private var currentAlert: MYAlertError? = nil
+    @State private var showAlert = false
 
     /// Флаг начала тапа по экрану (возможное скрытие клавиатуры).
     @State private var keyboardDismissRequested = false
@@ -101,21 +114,26 @@ struct MYRootView<Content: View>: View {
         )
         // Alert, если пришла ошибка от вложенной вью.
         .alert(
-            Text(currentAlert?.title ?? ""),
+            Text(MYAlertObserver.shared.alertError?.title ?? ""),
             isPresented: Binding(
-                get: { currentAlert != nil },
-                set: { if !$0 { currentAlert = nil } }
+                get: { showAlert },
+                set: {
+                    guard !$0 else { return }
+                    showAlert = false
+                    MYAlertObserver.shared.alertError = nil
+                    MYAlertObserver.shared.showAlert = true
+                }
             )
         ) {
             HStack {
-                if let primaryButton = currentAlert?.primaryButton {
+                if let primaryButton = MYAlertObserver.shared.alertError?.primaryButton {
                     Button(
                         primaryButton.title,
                         role: primaryButton.role,
                         action: primaryButton.action
                     )
                 }
-                if let secondaryButton = currentAlert?.secondaryButton {
+                if let secondaryButton = MYAlertObserver.shared.alertError?.secondaryButton {
                     Button(
                         secondaryButton.title,
                         role: secondaryButton.role,
@@ -124,13 +142,13 @@ struct MYRootView<Content: View>: View {
                 }
             }
         } message: {
-            Text(currentAlert?.message ?? "")
+            Text(MYAlertObserver.shared.alertError?.message ?? "")
         }
         // Обработка появления ошибки, которая должна вызвать alert.
-        .onPreferenceChange(MYAlertPreferenceKey.self) { error in
-            currentAlert = error
+        .onPreferenceChange(MYAlertPreferenceKey.self) { flag in
+            showAlert = MYAlertObserver.shared.showAlert && MYAlertObserver.shared.alertError != nil && flag
+            guard showAlert else { return }
+            MYAlertObserver.shared.showAlert = false
         }
-        // Предотвращение обработки одной ошибки несколькими представлениями.
-        .myAlertPresenter(error: nil)
     }
 }

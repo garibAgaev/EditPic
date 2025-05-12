@@ -16,7 +16,7 @@ struct MYForgotPasswordController: View {
             }
         }
         .navigationTitle("Восстановление пароля")
-        .myAlertPresenter(error: viewModel.alertError)
+        .myAlertPresenter(flag: viewModel.showAlert)
         .padding()
     }
 }
