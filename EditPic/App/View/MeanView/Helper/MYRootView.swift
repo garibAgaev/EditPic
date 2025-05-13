@@ -13,12 +13,12 @@ import SwiftUI
 
 /// Наблюдатель за появлением ошибок.
 @MainActor
-class MYAlertObserver: ObservableObject {
+class MYAlertManager: ObservableObject {
     fileprivate var showAlert = true
     
     @Published var alertError: MYAlertError?
     
-    static let shared = MYAlertObserver()
+    static let shared = MYAlertManager()
 
     private init() {}
 }
@@ -28,15 +28,14 @@ private struct MYAlertPreferenceKey: PreferenceKey {
     static var defaultValue = false
 
     static func reduce(value: inout Bool, nextValue: () -> Bool) {
-        let nextValue = nextValue()
-        value = value || nextValue
+        value = value || nextValue()
     }
 }
 
 extension View {
     /// Передает ошибку для отображения alert на Root уровне.
     func myAlertPresenter(flag: Bool) -> some View {
-        return preference(key: MYAlertPreferenceKey.self, value: flag)
+        preference(key: MYAlertPreferenceKey.self, value: flag)
     }
 }
 
@@ -114,26 +113,26 @@ struct MYRootView<Content: View>: View {
         )
         // Alert, если пришла ошибка от вложенной вью.
         .alert(
-            Text(MYAlertObserver.shared.alertError?.title ?? ""),
+            Text(MYAlertManager.shared.alertError?.title ?? ""),
             isPresented: Binding(
                 get: { showAlert },
                 set: {
                     guard !$0 else { return }
                     showAlert = false
-                    MYAlertObserver.shared.alertError = nil
-                    MYAlertObserver.shared.showAlert = true
+                    MYAlertManager.shared.alertError = nil
+                    MYAlertManager.shared.showAlert = true
                 }
             )
         ) {
             HStack {
-                if let primaryButton = MYAlertObserver.shared.alertError?.primaryButton {
+                if let primaryButton = MYAlertManager.shared.alertError?.primaryButton {
                     Button(
                         primaryButton.title,
                         role: primaryButton.role,
                         action: primaryButton.action
                     )
                 }
-                if let secondaryButton = MYAlertObserver.shared.alertError?.secondaryButton {
+                if let secondaryButton = MYAlertManager.shared.alertError?.secondaryButton {
                     Button(
                         secondaryButton.title,
                         role: secondaryButton.role,
@@ -142,13 +141,13 @@ struct MYRootView<Content: View>: View {
                 }
             }
         } message: {
-            Text(MYAlertObserver.shared.alertError?.message ?? "")
+            Text(MYAlertManager.shared.alertError?.message ?? "")
         }
         // Обработка появления ошибки, которая должна вызвать alert.
         .onPreferenceChange(MYAlertPreferenceKey.self) { flag in
-            showAlert = MYAlertObserver.shared.showAlert && MYAlertObserver.shared.alertError != nil && flag
+            showAlert = MYAlertManager.shared.showAlert && MYAlertManager.shared.alertError != nil && flag
             guard showAlert else { return }
-            MYAlertObserver.shared.showAlert = false
+            MYAlertManager.shared.showAlert = false
         }
     }
 }

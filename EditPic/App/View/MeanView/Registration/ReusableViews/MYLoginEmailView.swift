@@ -23,7 +23,7 @@ struct MYLoginEmailView: View {
                             get: { password },
                             set: { newValue in
                                 if !showAlert {
-                                    MYAlertObserver.shared.alertError = MYAlertError(
+                                    MYAlertManager.shared.alertError = MYAlertError(
                                         title: "Предупреждение",
                                         message: "Пароль должен содержать минимум \(MYPasswordManager.shared.defaultPasswordCount) символов.",
                                         primaryButton: MYAlertButton(title: "OK", role: .cancel)

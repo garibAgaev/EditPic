@@ -225,7 +225,7 @@ class MYAuthenticationViewModel: ObservableObject {
     @MainActor
     private func showAlert(title: String, message: String) {
         showAlert = true
-        MYAlertObserver.shared.alertError = MYAlertError(
+        MYAlertManager.shared.alertError = MYAlertError(
             title: title,
             message: message,
             primaryButton: MYAlertButton(title: "ОК", role: .cancel)

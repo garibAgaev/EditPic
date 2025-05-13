@@ -5,29 +5,31 @@ struct ToolbarView: View {
     
     @Binding var configure: ConfigureMode?
         
-    @State private var showAlert: MYAlertError?
+    @State private var showAlert = false
     
     var body: some View {
-        dwdiqdq
-    }
-    
-    @ViewBuilder var dwdiqdq: some View {
         MYOrientationStackView(false) {
             MYIconToggleButtonView(iconName: "square.and.arrow.up", isActive: .constant(false)) {
-                showAlert = MYAlertError(
-                    title: "Предупреждение",
-                    message: "Вы уверены, что хотите удалить?",
-                    primaryButton: MYAlertButton(
-                        title: "Нет",
-                        role: .cancel,
-                        action: {}
-                    ),
-                    secondaryButton: MYAlertButton(
-                        title: "Да",
-                        role: .destructive,
-                        action: {}
+                if configure != nil {
+                    MYAlertManager.shared.alertError = MYAlertError(
+                        title: "Предупреждение",
+                        message: "Вы уверены, что хотите прервать редактирвоание?",
+                        primaryButton: MYAlertButton(
+                            title: "Нет",
+                            role: .cancel,
+                        ),
+                        secondaryButton: MYAlertButton(
+                            title: "Да",
+                            role: .destructive,
+                            action: {
+                                configure = nil
+                            }
+                        )
                     )
-                )
+                    showAlert = true
+                } else {
+                    
+                }
             }
             
             Spacer()
@@ -51,28 +53,24 @@ struct ToolbarView: View {
             Spacer()
             
             MYIconToggleButtonView(iconName: "trash.fill", isActive: .constant(false)) {
-                if configure != nil {
-                    showAlert = MYAlertError(
-                        title: "Предупреждение",
-                        message: "Вы уверены, что хотите прервать редактирвоание?",
-                        primaryButton: MYAlertButton(
-                            title: "Нет",
-                            role: .cancel,
-                        ),
-                        secondaryButton: MYAlertButton(
-                            title: "Да",
-                            role: .destructive,
-                            action: {
-                                configure = nil
-                            }
-                        )
+                MYAlertManager.shared.alertError = MYAlertError(
+                    title: "Предупреждение",
+                    message: "Вы уверены, что хотите удалить?",
+                    primaryButton: MYAlertButton(
+                        title: "Нет",
+                        role: .cancel,
+                        action: {}
+                    ),
+                    secondaryButton: MYAlertButton(
+                        title: "Да",
+                        role: .destructive,
+                        action: {}
                     )
-                } else {
-                    
-                }
+                )
+                showAlert = true
             }
         }
-        .myAlertPresenter(error: showAlert)
+        .myAlertPresenter(flag: showAlert)
     }
 }
 
