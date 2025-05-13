@@ -68,7 +68,7 @@ struct MYRegistrationMethod: View {
                 .tint(Color.secondary)
                 .frame(maxWidth: .infinity)
                 .background {
-                    Color(.secondarySystemBackground)
+                    MYDefaultSetting.backgroundColor
                         .ignoresSafeArea()
                 }
             }

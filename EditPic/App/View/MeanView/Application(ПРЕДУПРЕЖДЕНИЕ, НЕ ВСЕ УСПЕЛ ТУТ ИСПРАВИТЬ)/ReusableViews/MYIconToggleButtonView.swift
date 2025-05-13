@@ -12,9 +12,8 @@ struct MYIconToggleButtonView: View {
             action()
             isActive.toggle()
         } label: {
-            let background =
-                Color(UIColor.secondarySystemBackground)
-                    .clipShape(Circle())
+            let background = Circle()
+                .fill(MYDefaultSetting.backgroundColor)
             
             let icon =
                 Image(systemName: iconName)
@@ -27,7 +26,6 @@ struct MYIconToggleButtonView: View {
                 content: icon,
                 scale: .inscribedInCircle
             )
-            .aspectRatio(1, contentMode: .fit)
         }
     }
 }
