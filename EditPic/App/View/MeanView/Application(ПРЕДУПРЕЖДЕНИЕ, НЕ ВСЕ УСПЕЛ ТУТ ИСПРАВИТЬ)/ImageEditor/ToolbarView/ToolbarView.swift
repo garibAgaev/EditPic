@@ -4,9 +4,9 @@ import SwiftUI
 struct ToolbarView: View {
     
     @Binding var configure: ConfigureMode?
-    @Binding var showAlert: Bool
-    @Binding var alertSource: AlertSource
         
+    @State private var showAlert: MYAlertError?
+    
     var body: some View {
         dwdiqdq
     }
@@ -14,12 +14,20 @@ struct ToolbarView: View {
     @ViewBuilder var dwdiqdq: some View {
         MYOrientationStackView(false) {
             MYIconToggleButtonView(iconName: "square.and.arrow.up", isActive: .constant(false)) {
-                if configure != nil {
-                    alertSource = .share
-                    showAlert = true
-                } else {
-                    
-                }
+                showAlert = MYAlertError(
+                    title: "Предупреждение",
+                    message: "Вы уверены, что хотите удалить?",
+                    primaryButton: MYAlertButton(
+                        title: "Нет",
+                        role: .cancel,
+                        action: {}
+                    ),
+                    secondaryButton: MYAlertButton(
+                        title: "Да",
+                        role: .destructive,
+                        action: {}
+                    )
+                )
             }
             
             Spacer()
@@ -43,16 +51,34 @@ struct ToolbarView: View {
             Spacer()
             
             MYIconToggleButtonView(iconName: "trash.fill", isActive: .constant(false)) {
-                alertSource = .trash
-                showAlert = true
+                if configure != nil {
+                    showAlert = MYAlertError(
+                        title: "Предупреждение",
+                        message: "Вы уверены, что хотите прервать редактирвоание?",
+                        primaryButton: MYAlertButton(
+                            title: "Нет",
+                            role: .cancel,
+                        ),
+                        secondaryButton: MYAlertButton(
+                            title: "Да",
+                            role: .destructive,
+                            action: {
+                                configure = nil
+                            }
+                        )
+                    )
+                } else {
+                    
+                }
             }
         }
+        .myAlertPresenter(error: showAlert)
     }
 }
 
 #Preview {
     VStack {
-        ToolbarView(configure: .constant(.pensil), showAlert: .constant(true), alertSource: .constant(.share))
+        ToolbarView(configure: .constant(.pensil))
         Spacer()
     }
 }

@@ -22,7 +22,7 @@ struct MYTextFieldView: View {
         .myDismissKeyboardOnTap()
         .padding()
         .autocapitalization(.none)
-        .background(Color(.secondarySystemBackground).opacity(opacity))
+        .background(MYDefaultSetting.backgroundColor.opacity(opacity))
         .clipShape(
             RoundedRectangle(cornerRadius: MYDefaultSetting.cornerRadius)
         )

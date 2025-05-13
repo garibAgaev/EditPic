@@ -39,7 +39,7 @@ struct MYLoginEmailView: View {
 //                .myAlertPresenter(flag: showAlert)
                 .myDismissKeyboardOnTap()
                 .padding()
-                .background(Color(.secondarySystemBackground))
+                .background(MYDefaultSetting.backgroundColor)
                 .cornerRadius(MYDefaultSetting.cornerRadius)
             }
             .myAlertPresenter(flag: showAlert)
