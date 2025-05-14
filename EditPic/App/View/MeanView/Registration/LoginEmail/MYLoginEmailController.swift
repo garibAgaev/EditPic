@@ -4,6 +4,7 @@ import SwiftUI
 struct MYLoginEmailController: View {
     
     @StateObject private var viewModel = MYAuthenticationViewModel()
+    @EnvironmentObject private var alertManager: MYAlertManager
     @State private var email: String = ""
     @State private var forgotEmail: String = ""
     @State private var password: String = ""
@@ -12,7 +13,13 @@ struct MYLoginEmailController: View {
     var body: some View {
         VStack {
             MYLoginEmailView(email: $email, password: $password) {
-                viewModel.fetchUser(email: email, password: password)
+                Task {
+                    do {
+                        try await viewModel.fetchUser(email: email, password: password)
+                    } catch {
+                        alertManager.alertError = (error as? MYAlertError)
+                    }
+                }
             }
             .padding()
             
@@ -26,7 +33,6 @@ struct MYLoginEmailController: View {
         } content: {
             MYForgotPasswordController(email: $forgotEmail)
         }
-        .myAlertPresenter(flag: viewModel.showAlert)
         .navigationTitle("Вход")
     }
     

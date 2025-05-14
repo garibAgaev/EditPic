@@ -13,7 +13,7 @@ struct MYConditionalButtonView: View {
                 .background(Color.blue)
                 .tint(Color.white)
                 .clipShape(
-                    RoundedRectangle(cornerRadius: MYDefaultSetting.cornerRadius)
+                    RoundedRectangle(cornerRadius: MYDefaultStyle.cornerRadius)
                 )
         }
     }

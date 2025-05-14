@@ -8,7 +8,7 @@ struct MYLoginEmailView: View {
 
     @AppStorage("isLoggedIn") var isLoggedIn = false
     
-    @State private var showAlert = false
+    @EnvironmentObject var showAlert: MYAlertManager
 
     var body: some View {
         VStack {
@@ -16,33 +16,23 @@ struct MYLoginEmailView: View {
                 MYTextFieldView("Email", text: $email)
                     .keyboardType(.emailAddress)
                 
-                SecureField(
-                    "Пароль",
-                    text:
-                        Binding(
-                            get: { password },
-                            set: { newValue in
-                                if !showAlert {
-                                    MYAlertManager.shared.alertError = MYAlertError(
-                                        title: "Предупреждение",
-                                        message: "Пароль должен содержать минимум \(MYPasswordManager.shared.defaultPasswordCount) символов.",
-                                        primaryButton: MYAlertButton(title: "OK", role: .cancel)
-                                    )
-                                    showAlert = true
-                                }
-                                withAnimation {
-                                    password = newValue
-                                }
+                SecureField("Пароль", text: $password)
+                    .simultaneousGesture(
+                        TapGesture().onEnded {
+                            if password.isEmpty {
+                                showAlert.alertError = MYAlertError(
+                                    title: "Предупреждение",
+                                    message: "Пароль должен содержать минимум \(MYPasswordManager.shared.defaultPasswordCount) символов.",
+                                    primaryButton: MYAlertButton(title: "OK", role: .cancel)
+                                )
                             }
-                        )
-                )
-//                .myAlertPresenter(flag: showAlert)
-                .myDismissKeyboardOnTap()
-                .padding()
-                .background(MYDefaultSetting.backgroundColor)
-                .cornerRadius(MYDefaultSetting.cornerRadius)
+                        }
+                    )
+                    .myDismissKeyboardOnTap()
+                    .padding()
+                    .background(MYDefaultStyle.backgroundColor)
+                    .cornerRadius(MYDefaultStyle.cornerRadius)
             }
-            .myAlertPresenter(flag: showAlert)
             .myDismissKeyboardOnTap()
             
             

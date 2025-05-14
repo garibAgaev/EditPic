@@ -1,7 +1,7 @@
 
 import SwiftUI
 
-struct MYAlertError: Equatable, Identifiable {
+struct MYAlertError: Error, Equatable, Identifiable {
     let id = UUID()
 
     let title: String

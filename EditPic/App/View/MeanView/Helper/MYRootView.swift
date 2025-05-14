@@ -14,30 +14,31 @@ import SwiftUI
 /// Наблюдатель за появлением ошибок.
 @MainActor
 class MYAlertManager: ObservableObject {
-    fileprivate var showAlert = true
+//    fileprivate var showAlert = true
     
     @Published var alertError: MYAlertError?
-    
-    static let shared = MYAlertManager()
-
-    private init() {}
+//    
+//    static let shared = MYAlertManager()
+//
+//    private init() {}
 }
 
 /// PreferenceKey для передачи ошибок, вызывающих alert, вверх по иерархии View.
-private struct MYAlertPreferenceKey: PreferenceKey {
-    static var defaultValue = false
+//private struct MYAlertPreferenceKey: PreferenceKey {
+//    static var defaultValue = false
+//
+//    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+//        value = value || nextValue()
+//    }
+//}
 
-    static func reduce(value: inout Bool, nextValue: () -> Bool) {
-        value = value || nextValue()
-    }
-}
-
-extension View {
-    /// Передает ошибку для отображения alert на Root уровне.
-    func myAlertPresenter(flag: Bool) -> some View {
-        preference(key: MYAlertPreferenceKey.self, value: flag)
-    }
-}
+//extension View {
+//    /// Передает ошибку для отображения alert на Root уровне.
+//    func myAlertPresenter(flag: Bool) -> some View {
+//        print(flag, "---------")
+//        return preference(key: MYAlertPreferenceKey.self, value: flag)
+//    }
+//}
 
 // MARK: - Keyboard Dismiss Support
 
@@ -67,7 +68,7 @@ extension View {
 
 /// Главное обёртывающее вью, обрабатывающее скрытие клавиатуры и показ alert.
 struct MYRootView<Content: View>: View {
-    @State private var showAlert = false
+    @StateObject private var alert = MYAlertManager()
 
     /// Флаг начала тапа по экрану (возможное скрытие клавиатуры).
     @State private var keyboardDismissRequested = false
@@ -82,6 +83,7 @@ struct MYRootView<Content: View>: View {
         ZStack {
             Color.clear
             content
+                .environmentObject(alert)
         }
         .contentShape(Rectangle())
         // Обработка тапа по экрану (начинается запрос на скрытие клавиатуры).
@@ -113,26 +115,24 @@ struct MYRootView<Content: View>: View {
         )
         // Alert, если пришла ошибка от вложенной вью.
         .alert(
-            Text(MYAlertManager.shared.alertError?.title ?? ""),
+            Text(alert.alertError?.title ?? ""),
             isPresented: Binding(
-                get: { showAlert },
+                get: { alert.alertError != nil },
                 set: {
                     guard !$0 else { return }
-                    showAlert = false
-                    MYAlertManager.shared.alertError = nil
-                    MYAlertManager.shared.showAlert = true
+                    alert.alertError = nil
                 }
             )
         ) {
             HStack {
-                if let primaryButton = MYAlertManager.shared.alertError?.primaryButton {
+                if let primaryButton = alert.alertError?.primaryButton {
                     Button(
                         primaryButton.title,
                         role: primaryButton.role,
                         action: primaryButton.action
                     )
                 }
-                if let secondaryButton = MYAlertManager.shared.alertError?.secondaryButton {
+                if let secondaryButton = alert.alertError?.secondaryButton {
                     Button(
                         secondaryButton.title,
                         role: secondaryButton.role,
@@ -141,13 +141,14 @@ struct MYRootView<Content: View>: View {
                 }
             }
         } message: {
-            Text(MYAlertManager.shared.alertError?.message ?? "")
+            Text(alert.alertError?.message ?? "")
         }
         // Обработка появления ошибки, которая должна вызвать alert.
-        .onPreferenceChange(MYAlertPreferenceKey.self) { flag in
-            showAlert = MYAlertManager.shared.showAlert && MYAlertManager.shared.alertError != nil && flag
-            guard showAlert else { return }
-            MYAlertManager.shared.showAlert = false
-        }
+//        .onPreferenceChange(MYAlertPreferenceKey.self) { flag in
+//            print(flag, "++++++++++++")
+//            showAlert = MYAlertManager.shared.showAlert && MYAlertManager.shared.alertError != nil
+//            guard showAlert else { return }
+//            MYAlertManager.shared.showAlert = false
+//        }
     }
 }

@@ -5,30 +5,13 @@ struct MYScaledOverlayView<MYBackground: View, MYContent: View>: View {
     let background: MYBackground
     let content: MYContent
     var scale: Double
-    @State private var baseSize: CGSize = .zero
-
+    
+    @State private var size: CGSize = .zero
+    
     var body: some View {
-        ZStack {
-            background
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .preference(
-                                key: MYSizePreferenceKey.self,
-                                value: geometry.size
-                            )
-                    }
-                )
-
-            content
-                .frame(
-                    width: baseSize.width * scale,
-                    height: baseSize.height * scale
-                )
-        }
-        .onPreferenceChange(MYSizePreferenceKey.self) { newSize in
-            baseSize = newSize
-        }
+        background
+            .overlay(content
+                .scaleEffect(scale, anchor: .center))
     }
     
     init(background: MYBackground, content: MYContent, scale: MYContentScale) {
@@ -48,5 +31,5 @@ struct MYScaledOverlayView<MYBackground: View, MYContent: View>: View {
             .resizable()
             .scaledToFit(),
         scale: .inscribedInCircle
-    )    
+    )
 }

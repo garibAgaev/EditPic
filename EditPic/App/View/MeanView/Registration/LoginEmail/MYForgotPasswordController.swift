@@ -5,6 +5,7 @@ struct MYForgotPasswordController: View {
     
     @Binding var email: String
     @StateObject private var viewModel = MYAuthenticationViewModel()
+    @EnvironmentObject var alertManager: MYAlertManager
     
     var body: some View {
         VStack {
@@ -12,11 +13,17 @@ struct MYForgotPasswordController: View {
                 .keyboardType(.emailAddress)
             
             MYConditionalButtonView("Продолжить", showButton: MYEmailManager.shared.isEmailValid(email)) {
-                viewModel.tryChangePassword(email: email)
+                Task {
+                    do {
+                        try await viewModel.tryChangePassword(email: email)
+                    } catch {
+                        
+                        alertManager.alertError = (error as? MYAlertError)
+                    }
+                }
             }
         }
         .navigationTitle("Восстановление пароля")
-        .myAlertPresenter(flag: viewModel.showAlert)
         .padding()
     }
 }

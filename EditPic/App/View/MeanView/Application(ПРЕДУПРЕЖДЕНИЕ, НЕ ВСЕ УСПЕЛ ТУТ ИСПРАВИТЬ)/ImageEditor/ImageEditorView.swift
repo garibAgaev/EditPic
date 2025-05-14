@@ -5,7 +5,7 @@ struct ImageEditorView: View {
     @AppStorage("isLoggedIn") var isLoggedIn = false
     @AppStorage("name") var nameStorage: String?
     
-    @State private var start = Rotate()
+    @State private var start = MYRotationState()
     @State private var labelConfiguration = MYLabelConfiguration()
     @State private var isSelected = false
     @State private var configure: ConfigureMode? = nil

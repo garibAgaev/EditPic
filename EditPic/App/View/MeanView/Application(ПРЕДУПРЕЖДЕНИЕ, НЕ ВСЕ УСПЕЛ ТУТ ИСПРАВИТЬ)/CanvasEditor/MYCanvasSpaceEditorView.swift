@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct MYCanvasSpaceEditorView: UIViewControllerRepresentable {
-    @Binding var start: Rotate
+    @Binding var start: MYRotationState
     @Binding var flagCanvas: Bool
     @Binding var flagText: Bool
     @Binding var labelConfiguration: MYLabelConfiguration
@@ -62,11 +62,11 @@ struct MYCanvasSpaceEditorView: UIViewControllerRepresentable {
         var flagText: Bool
         var labelConfiguration: MYLabelConfiguration
         var image: UIImage?
-        var start: Rotate
+        var start: MYRotationState
 
         var flag = true
         
-        init(_ parent: MYCanvasSpaceEditorView, flagCanvas: Bool, flagText: Bool, labelConfiguration: MYLabelConfiguration, image: UIImage?, start: Rotate) {
+        init(_ parent: MYCanvasSpaceEditorView, flagCanvas: Bool, flagText: Bool, labelConfiguration: MYLabelConfiguration, image: UIImage?, start: MYRotationState) {
             self.parent = parent
             self.flagCanvas = flagCanvas
             self.flagText = flagText

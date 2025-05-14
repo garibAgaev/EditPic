@@ -1,17 +1,17 @@
 
 import SwiftUI
 
-struct ToolbarView: View {
+struct MYEditorToolbarView: View {
     
     @Binding var configure: ConfigureMode?
         
-    @State private var showAlert = false
+    @EnvironmentObject var showAlert: MYAlertManager
     
     var body: some View {
         MYOrientationStackView(false) {
             MYIconToggleButtonView(iconName: "square.and.arrow.up", isActive: .constant(false)) {
                 if configure != nil {
-                    MYAlertManager.shared.alertError = MYAlertError(
+                    showAlert.alertError = MYAlertError(
                         title: "Предупреждение",
                         message: "Вы уверены, что хотите прервать редактирвоание?",
                         primaryButton: MYAlertButton(
@@ -26,7 +26,6 @@ struct ToolbarView: View {
                             }
                         )
                     )
-                    showAlert = true
                 } else {
                     
                 }
@@ -53,7 +52,7 @@ struct ToolbarView: View {
             Spacer()
             
             MYIconToggleButtonView(iconName: "trash.fill", isActive: .constant(false)) {
-                MYAlertManager.shared.alertError = MYAlertError(
+                showAlert.alertError = MYAlertError(
                     title: "Предупреждение",
                     message: "Вы уверены, что хотите удалить?",
                     primaryButton: MYAlertButton(
@@ -67,16 +66,14 @@ struct ToolbarView: View {
                         action: {}
                     )
                 )
-                showAlert = true
             }
         }
-        .myAlertPresenter(flag: showAlert)
     }
 }
 
 #Preview {
     VStack {
-        ToolbarView(configure: .constant(.pensil))
+        MYEditorToolbarView(configure: .constant(.pensil))
         Spacer()
     }
 }

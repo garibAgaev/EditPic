@@ -13,7 +13,7 @@ struct MYIconToggleButtonView: View {
             isActive.toggle()
         } label: {
             let background = Circle()
-                .fill(MYDefaultSetting.backgroundColor)
+                .fill(MYDefaultStyle.backgroundColor)
             
             let icon =
                 Image(systemName: iconName)

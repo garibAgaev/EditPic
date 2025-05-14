@@ -23,11 +23,11 @@ struct MYLoginView: View {
         .tint(Color.primary)
         .padding()
         .overlay(
-            RoundedRectangle(cornerRadius: MYDefaultSetting.cornerRadius)
+            RoundedRectangle(cornerRadius: MYDefaultStyle.cornerRadius)
                 .stroke(Color.gray, lineWidth: 1)
         )
         .clipShape(
-            RoundedRectangle(cornerRadius: MYDefaultSetting.cornerRadius)
+            RoundedRectangle(cornerRadius: MYDefaultStyle.cornerRadius)
         )
     }
 }

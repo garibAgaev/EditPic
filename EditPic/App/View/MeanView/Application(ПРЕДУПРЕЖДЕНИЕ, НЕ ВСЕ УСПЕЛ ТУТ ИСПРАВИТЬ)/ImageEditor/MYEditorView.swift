@@ -4,17 +4,24 @@ import SwiftUI
 struct MYEditorView: View {
     
     @Binding var isLabelSelected: Bool
-    @Binding var rotationState: Rotate //RotationState
+    @Binding var rotationState: MYRotationState //RotationState
     @Binding var labelConfiguration: MYLabelConfiguration
-    @Binding var editMode: ConfigureMode? //EditMode?
+    @Binding var editMode: ConfigureMode?
     
     @State private var screenLength: CGFloat = 0.0
 
     var body: some View {
         ZStack {
             MYOrientationStackView(true) {
-                ToolbarView(configure: $editMode) //EditorToolbarView(editMode:
-                    .background(geometryObserverView)
+                MYEditorToolbarView(configure: $editMode)
+                    .frame(
+                        maxWidth: MYOrientationManager.shared.orientation == .horizontal
+                        ? MYDefaultStyle.buttonSize.width
+                        : nil,
+                        maxHeight: MYOrientationManager.shared.orientation == .vertical
+                        ? MYDefaultStyle.buttonSize.height
+                        : nil
+                    )
                     .padding()
                 Spacer()
             }
@@ -23,7 +30,7 @@ struct MYEditorView: View {
             MYOrientationStackView(true) {
                 switch MYOrientationManager.shared.orientation {
                 case .horizontal:
-                    Color.clear.frame(width: screenLength)
+                    Color.clear.frame(width: MYDefaultStyle.buttonSize.width)
                 case .vertical:
                     Spacer()
                 }
@@ -60,26 +67,12 @@ struct MYEditorView: View {
             MYIconToggleButtonView(iconName: "rotate.left", isActive: .constant(false)) {
                 rotationState.left.toggle()
             }
-            .frame(width: screenLength)
+            .frame(maxWidth: MYDefaultStyle.buttonSize.width, maxHeight:  MYDefaultStyle.buttonSize.height)
             MYIconToggleButtonView(iconName: "rotate.right", isActive: .constant(false)) {
                 rotationState.right.toggle()
             }
-            .frame(width: screenLength)
+            .frame(maxWidth: MYDefaultStyle.buttonSize.width, maxHeight:  MYDefaultStyle.buttonSize.height)
             Spacer()
-        }
-    }
-    
-    var geometryObserverView: some View {
-        GeometryReader { geometry in
-            Color.clear
-                .onReceive(MYOrientationManager.shared.$orientation) { orientation in
-                    switch orientation {
-                    case .horizontal:
-                        screenLength = geometry.size.width
-                    case .vertical:
-                        screenLength = geometry.size.height
-                    }
-                }
         }
     }
 }

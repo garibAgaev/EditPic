@@ -15,7 +15,7 @@ struct MYLabelEditorView: View {
             case .none:
                 MYTextFieldView("Введите текст...",
                                 text: $inputText,
-                                opacity: MYDefaultSetting.backgroundOpacity)
+                                opacity: MYDefaultStyle.backgroundOpacity)
                 .padding()
                 
             case .some(let currentOption):
@@ -50,7 +50,7 @@ struct MYLabelEditorView: View {
                             .padding()
                     }
                 }
-                .background(MYDefaultSetting.backgroundColor)
+                .background(MYDefaultStyle.backgroundColor)
             }
         }
         .onAppear {

@@ -46,19 +46,20 @@ struct MYWelcomeView: View {
         VStack {
             HStack {
                 Image(systemName: "photo")
+                    .resizable()
+                    .scaledToFit()
+                    .padding()
                     .frame(width: 100, height: 100)
                 VStack(alignment: .leading) {
-                    Text("Ленивый пузатик")
-                        .font(.largeTitle)
-                    HStack {
-                        Text("Вы\(isUserLoggedIn ? "" : " не") авторизованы")
-                        Spacer()
-                    }
+                    MYLeadingAlignedText(.init("Ленивый пузатик"))
+                        .font(.title)
+                    Divider()
+                    MYLeadingAlignedText(.init("Вы\(isUserLoggedIn ? "" : " не") авторизованы"))
                 }
             }
             .padding()
             .background(Color.white)
-            .cornerRadius(MYDefaultSetting.cornerRadius)
+            .cornerRadius(MYDefaultStyle.cornerRadius)
             .onTapGesture {
                 isUserLoggedIn = false
             }

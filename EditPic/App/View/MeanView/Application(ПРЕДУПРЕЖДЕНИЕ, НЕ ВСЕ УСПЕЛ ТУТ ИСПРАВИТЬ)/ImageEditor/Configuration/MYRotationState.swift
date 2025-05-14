@@ -1,6 +1,6 @@
 import Foundation
 
-struct Rotate {
+struct MYRotationState {
     var left = false
     var right = false
 }

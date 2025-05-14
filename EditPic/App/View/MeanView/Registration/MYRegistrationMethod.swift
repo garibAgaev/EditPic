@@ -4,7 +4,7 @@ import SwiftUI
 struct MYRegistrationMethod: View {
         
     @StateObject private var viewModel = MYAuthenticationViewModel()
-    
+    @EnvironmentObject private var alertManager: MYAlertManager
     @State private var isUserLoggedIn = true
     @State private var email = ""
     @State private var password = ""
@@ -36,16 +36,30 @@ struct MYRegistrationMethod: View {
                         MYTextFieldView("Введите имя", text: $name)
                         MYLoginEmailView(email: $email, password: $password) {
                             if name.isEmpty {
-                                viewModel.showEmptyNameWarning()
+                                do {
+                                    try viewModel.showEmptyNameWarning()
+                                } catch {
+                                    alertManager.alertError = (error as? MYAlertError)
+                                }
                             } else {
-                                viewModel.tryRegister(email: email, password: password)
+                                Task {
+                                    do {
+                                        try await viewModel.tryRegister(email: email, password: password)
+                                    } catch {
+                                        alertManager.alertError = (error as? MYAlertError)
+                                    }
+                                }
                             }
                         }
                     }
                     Button {
                         MYGoogleSignInHelper.shared.signIn { result in
-                            DispatchQueue.main.async {
-                                viewModel.handleGoogleSignInResult(result)
+                            Task {
+                                do {
+                                    try await viewModel.handleGoogleSignInResult(result)
+                                } catch {
+                                    alertManager.alertError = (error as? MYAlertError)
+                                }
                             }
                         }
                     } label: {
@@ -68,11 +82,10 @@ struct MYRegistrationMethod: View {
                 .tint(Color.secondary)
                 .frame(maxWidth: .infinity)
                 .background {
-                    MYDefaultSetting.backgroundColor
+                    MYDefaultStyle.backgroundColor
                         .ignoresSafeArea()
                 }
             }
-            .myAlertPresenter(flag: viewModel.showAlert)
             .navigationTitle(Text(isUserLoggedIn ? "Вход" : "Регистрация"))
         }
     }
